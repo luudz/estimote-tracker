@@ -3,6 +3,9 @@
   var socket = io();
 
   socket.on('message', function(beacon){
+
+    $('#list').empty();
+
     var props = [];
 
     for (var prop in beacon){
