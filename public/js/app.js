@@ -1,17 +1,12 @@
 (function() {
 
   var socket = io();
+  var props = [];
 
   socket.on('message', function(beacon){
-
-    $('#list').empty();
-
-    var props = [];
-
     for (var prop in beacon){
-        props.push(beacon[prop]);
+        props[prop.identifier] = prop;
     }
-
     $('#list').append('<li>' +  props.join(":")  + '</li>');
   });
 
