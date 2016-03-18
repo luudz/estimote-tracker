@@ -1,0 +1,19 @@
+{
+  "name": "Estimote",
+  "version": "1.0.1",
+  "authors": [
+    "Progress Software"
+  ],
+  "description": "Estimote Beacon Monitor",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.2.2"
+  }
+}
