@@ -31,4 +31,9 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
->>>>>>> 3e8fb2db66520bddabbd4c1bf206e00819904bf7
+
+
+# NativeScript
+
+lib
+platforms

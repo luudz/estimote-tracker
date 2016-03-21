@@ -4,6 +4,8 @@ var frameModule = require('ui/frame');
 
 var Estimote = require('nativescript-estimote-sdk');
 
+var Sqlite = require( "nativescript-sqlite" );
+
 var http = require("http");
 
 var data = new observableModule.Observable();
@@ -36,15 +38,14 @@ function pageLoaded(args) {
 
     //var content = JSON.stringify(items);
 
-    // var promise = new Sqlite("estimote", function (err, db) {
-    //     db.version(function(err, ver){
-    //         if (ver === 0){
-    //             console.log("here");
-    //             db.executeSQL("CREATE TABLE IF NOT EXISTS estimote (id integer primary key, data text)");
-    //             db.version(1);
-    //         }
-    //     });
-    // });
+    var promise = new Sqlite("estimote", function (err, db) {
+        db.version(function(err, ver){
+            if (ver === 0){
+                db.executeSQL("CREATE TABLE IF NOT EXISTS estimote (id integer primary key, data text)");
+                db.version(1);
+            }
+        });
+    });
 
     this.options = {
         callback : function(beacons){
