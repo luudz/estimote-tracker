@@ -20,7 +20,7 @@ var CLLocationManagerDelegateImpl = (function (_super) {
     };
 
     CLLocationManagerDelegateImpl.prototype.locationManagerDidUpdateLocations = function(manager, locations) {
-
+        console.log("location updated")
     };
 
     CLLocationManagerDelegateImpl.prototype.locationManagerDidChangeAuthorizationStatus = function(manager, status) {
@@ -44,6 +44,7 @@ var AppDelegate = (function (_super) {
         this.locationManager = CLLocationManager.alloc().init();
         this.locationManager.delegate = this.locationManagerDelegate;
         this.locationManager.distanceFilter = 100;
+        this.locationManager.allowsBackgroundLocationUpdates = true;
 
         this.locationManager.requestAlwaysAuthorization();
 
@@ -62,14 +63,14 @@ var AppDelegate = (function (_super) {
                   console.log(data);
 
                   var promise = http.request({
-                       url : "https://estimote-beacon-monitor.herokuapp.com/api/echo",
+                       url : "https://estimote-beacon-tracker.herokuapp.com/api/echo",
                        method: "POST",
                        headers: { "Content-Type": "application/json" },
                        content : data
                    });
 
                    promise.then(function(result){
-                       console.log(JSON.stringify(result));
+                      //  console.log(JSON.stringify(result));
                    }, function (error){
                        console.error(JSON.stringify(error));
                    });
