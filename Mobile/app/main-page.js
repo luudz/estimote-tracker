@@ -34,23 +34,11 @@ function pageLoaded(args) {
 
     data.set("beacons", items);
 
-    page.bindingContext = data;
-
-    //var content = JSON.stringify(items);
-
-    var promise = new Sqlite("estimote", function (err, db) {
-        db.version(function(err, ver){
-            if (ver === 0){
-                db.executeSQL("CREATE TABLE IF NOT EXISTS estimote (id integer primary key, data text)");
-                db.version(1);
-            }
-        });
-    });
+    var _this = this;
 
     this.options = {
         callback : function(beacons){
           var items =[];
-
           for (var i = 0; i < beacons.length; i++) {
              var beacon = beacons[i];
              if (beacon.major > 0){
@@ -69,27 +57,35 @@ function pageLoaded(args) {
                 };
 
                 items.push(item);
+
+                _this.db.all("select * from beacon where major=? and minor=?", [beacon.major, beacon.minor], function(err, resultSet){
+                    console.log(resultSet[0]);
+                    if (resultSet.length === 0){
+                      _this.db.execSQL("insert into beacon (major, minor, data) values (?, ?, ?)", [beacon.major, beacon.minor, JSON.stringify(item)], function(err, id){
+                          console.log("The new record id is:", id);
+                      });
+                    }
+                    else{
+                      _this.db.execSQL("update beacon SET data = ? where major = ? and minor = ?", [JSON.stringify(item), beacon.major, beacon.minor], function(err, id){
+                          console.log("The updated record id is:", id);
+                      });
+                    }
+                });
              }
           }
-
-          // var promise = http.request({
-          //     url : " https://estimote-beacon-monitor.herokuapp.com/echo",
-          //     method: "POST",
-          //     headers: { "Content-Type": "application/json" },
-          //     content : content
-          // })
-          //
-          // promise.then(function(result){
-          //     // console.log(JSON.stringify(result));
-          // }, function (error){
-          //     console.error(JSON.stringify(error));
-          // });
 
           data.set("beacons", new observableArrayModule.ObservableArray(items));
         }
     };
 
-    new Estimote(this.options).startRanging();
+    new Sqlite("Estimote", function (err, db) {
+        _this.db = db;
+        db.execSQL("CREATE TABLE IF NOT EXISTS beacon (id integer primary key, data text, major integer, minor integer)").then(function(err, id){
+          new Estimote(_this.options).startRanging();
+        });
+    });
+
+    page.bindingContext = data;
 }
 
 exports.pageLoaded = pageLoaded;
