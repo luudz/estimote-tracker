@@ -4,12 +4,33 @@ var Sqlite = require( "nativescript-sqlite" );
 application.mainModule = "main-page";
 application.cssFile = "./app.css";
 
-// Open your app's main js file and add this handler (delimited by 'START 3DTouch wiring' and 'END 3DTouch wiring').
-// Then tweak the handling of 'shortcutItem.type' to your liking (here I'm deeplinking 'compose' to the 'compose' page and ignore other shortcut types).
-
 var application = require("application");
 application.cssFile = "./app.css";
 application.mainModule = "main-page";
+
+var http = require('http');
+
+var CLLocationManagerDelegateImpl = (function (_super) {
+    __extends(CLLocationManagerDelegateImpl, _super);
+    function CLLocationManagerDelegateImpl() {
+        _super.apply(this, arguments);
+    }
+    CLLocationManagerDelegateImpl.new = function () {
+        return _super.new.call(this);
+    };
+
+    CLLocationManagerDelegateImpl.prototype.locationManagerDidUpdateLocations = function(manager, locations) {
+
+    };
+
+    CLLocationManagerDelegateImpl.prototype.locationManagerDidChangeAuthorizationStatus = function(manager, status) {
+        manager.startUpdatingLocation();
+    };
+
+    CLLocationManagerDelegateImpl.ObjCProtocols = [CLLocationManagerDelegate];
+
+    return CLLocationManagerDelegateImpl;
+})(NSObject);
 
 var AppDelegate = (function (_super) {
     __extends(AppDelegate, _super);
@@ -18,12 +39,44 @@ var AppDelegate = (function (_super) {
     }
 
     AppDelegate.prototype.applicationDidFinishLaunchingWithOptions = function(application, options) {
+
+        this.locationManagerDelegate = CLLocationManagerDelegateImpl.new().init();
+        this.locationManager = CLLocationManager.alloc().init();
+        this.locationManager.delegate = this.locationManagerDelegate;
+        this.locationManager.distanceFilter = 100;
+
+        this.locationManager.requestAlwaysAuthorization();
+
         return true;
     };
 
     AppDelegate.prototype.applicationPerformFetchWithCompletionHandler = function(application, handler){
-         console.log(handler);
-         console.log(UIBackgroundFetchResult.NewData);
+          new Sqlite("Estimote", function (err, db) {
+              db.all("select * from beacon", [], function(err, resultSet){
+
+                for (var index = 0; index < resultSet.length; index++){
+                  var data = resultSet[index][1];
+
+                  console.log(JSON.parse(data).rssi);
+
+                  console.log(data);
+
+                  var promise = http.request({
+                       url : "https://estimote-beacon-monitor.herokuapp.com/api/echo",
+                       method: "POST",
+                       headers: { "Content-Type": "application/json" },
+                       content : data
+                   });
+
+                   promise.then(function(result){
+                       console.log(JSON.stringify(result));
+                   }, function (error){
+                       console.error(JSON.stringify(error));
+                   });
+                }
+              });
+          });
+
          handler(UIBackgroundFetchResult.NewData);
     };
 

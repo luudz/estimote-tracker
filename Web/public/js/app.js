@@ -6,14 +6,9 @@
 
     $('#list').empty();
 
-    for (var prop in beacon){
-        console.log(prop);
-        props[prop.identifier] = prop;
-    }
+    console.log(Object.keys(beacon));
 
-    console.log(Object.keys(props));
-
-    var propString = Object.keys(props).map(function(x){return props[x];}).join(":");
+    var propString = Object.keys(beacon).map(function(x){return beacon[x];}).join(":");
 
     $('#list').append('<li>' +  propString  + '</li>');
   });

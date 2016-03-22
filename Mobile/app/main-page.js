@@ -59,21 +59,20 @@ function pageLoaded(args) {
                 items.push(item);
 
                 _this.db.all("select * from beacon where major=? and minor=?", [beacon.major, beacon.minor], function(err, resultSet){
-                    console.log(resultSet[0]);
+                    // console.log(resultSet[0]);
                     if (resultSet.length === 0){
                       _this.db.execSQL("insert into beacon (major, minor, data) values (?, ?, ?)", [beacon.major, beacon.minor, JSON.stringify(item)], function(err, id){
-                          console.log("The new record id is:", id);
+                          // console.log("The new record id is:", id);
                       });
                     }
                     else{
                       _this.db.execSQL("update beacon SET data = ? where major = ? and minor = ?", [JSON.stringify(item), beacon.major, beacon.minor], function(err, id){
-                          console.log("The updated record id is:", id);
+                          // console.log("The updated record id is:", id);
                       });
                     }
                 });
              }
           }
-
           data.set("beacons", new observableArrayModule.ObservableArray(items));
         }
     };

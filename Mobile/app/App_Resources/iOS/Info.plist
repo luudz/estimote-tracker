@@ -41,7 +41,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Allow the app to access your location even when you not are using the App</string>
+	<key>NSLocationUsageDescription</key>
+	<string>Allow the app to access your current locaiton</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Allow the app to access your location when you are using the App</string>
 	<key>UIBackgroundModes</key>
+	
 	<array>
 		<string>fetch</string>
 		<string>location</string>
