@@ -3,19 +3,22 @@
   var beacons = [];
 
   $('#list').empty();
-  
+
   socket.on('message', function(beacon){
 
     var summary = Object.keys(beacon).map(function(x){return beacon[x];}).join(": ");
 
-    var identifier = escape(beacon.identifier);
-
-    console.log(identifier);
+    var identifier = beacon.identifier.replace(/[\s:]+/ig, "-");
 
     if (!beacons[identifier]){
       $('#list').append("<li id="+ identifier + ">" +  summary  + "</li>");
-      beacons[identifier] = summary;
     }
+    else {
+        console.log("updated" + summary);
+        $("#list").find("#" + identifier).html(summary);
+    }
+
+    beacons[identifier] = summary;
   });
 
 })();
