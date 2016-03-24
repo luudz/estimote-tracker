@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CSUMB - Estimote Beacon</title>
+    <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</description>
+    <link>http://www.progress.com/</link>
+    <atom:link href="http://www.progress.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 24 Mar 2016 15:16:58 -0700</pubDate>
+    <lastBuildDate>Thu, 24 Mar 2016 15:16:58 -0700</lastBuildDate>
+    <generator>Jekyll v3.1.2</generator>
+    
+      <item>
+        <title>Estimote Beacon Background Sync - iOS</title>
+        <description>&lt;p&gt;Estimote Beacon is a super small device. It has a powerful 32-bit ARM® Cortex M0 CPU with 256kB flash memory, accelerometer, temperature sensor and most importantly – a 2.4 GHz Bluetooth 4.0 Smart (also known as BLE or Bluetooth low energy) bidirectional radio.&lt;/p&gt;
+
+&lt;p&gt;This document will guide you through the process of installing a NativeScript plugin and then enabling background fetch of iOS to sync it back to a tracker portal.&lt;/p&gt;
+
+&lt;p&gt;This document assumes that the reader is familiar with NativeScript and knows how to create a basic app. More information on NativeScript is provided at the end of this document.&lt;/p&gt;
+
+&lt;p&gt;One you have the app configured first step is to install the plugin which is publicly available as a npm package. In order to install the plugin execute the following command from the root of your native-script app:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tns plugin add nativescript-estimote-sdk
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The Core Location framework in iOS provides two ways of monitoring user’s entry and exit into specific region:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Geographical Region Monitoring&lt;/li&gt;
+  &lt;li&gt;Beacon Region Monitoring&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;More information on this can be found in the link below:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/LocationAwarenessPG/RegionMonitoring/RegionMonitoring.html#//apple_ref/doc/uid/TP40009497-CH9-SW1&quot;&gt;Apple Region Monitoring - Documentation&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;We are interested in monitoring user’s location using beacon monitoring via bluetooth low energy. Once you have the estimote NativeScript plugin installed, you can turn on beacon monitoring in the following way:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var Sqlite = require( &quot;nativescript-sqlite&quot; );
+var Estimote = require(&#39;nativescript-estimote-sdk&#39;);
+
+
+var options = {
+  region : &#39;Progress&#39;, // optional
+  callback : function(beacons){
+          for (var i = 0; i &amp;lt; beacons.count; i++) {
+         var beacon = beacons[i];
+         if (beacon.major &amp;gt; 0){
+             var distance = &quot;NA&quot;;
+             var identifier = &quot;Major:&quot; + beacon.major + &quot; Minor:&quot; + beacon.minor;
+
+             if (beacon.proximity) {
+               distance = beacon.proximity;
+             }
+
+             var item = {
+                 &quot;proximity&quot; : beacon.proximity,
+                 &quot;identifier&quot;: identifier,
+                 &quot;distance&quot;:  &quot;Distance: &quot; + distance,
+                 &quot;rssi&quot;: &quot;Power: &quot; +  beacon.rssi + &quot;dBm&quot;
+             };
+
+            // store the beacon information in device storage using SQLite plugin.
+         }
+    }
+}
+
+new Estimote(options).startRanging();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here to note that I have also used SQLite plugin to initially store the beacon in device storage. In order to install SQLite plugin please execute the following command:&lt;/p&gt;
+
+&lt;p&gt;tns plugin add nativescript-sqlite&lt;/p&gt;
+
+&lt;p&gt;Please checkout the documentation below for more information on SQLite plugin and how to use it in your project:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/nathanaela/nativescript-sqlite&quot;&gt;NativeScript SQLite Plugin&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;As we can see above that the beacon monitoring is pretty straight-forward, however estimote beacon ranging will be paused if the app is not running in the foreground. In the &lt;code class=&quot;highlighter-rouge&quot;&gt;Info.Plist&lt;/code&gt; file under &lt;code class=&quot;highlighter-rouge&quot;&gt;App_Resources&lt;/code&gt; folder we need to include the following  lines:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;key&amp;gt;NSLocationAlwaysUsageDescription&amp;lt;/key&amp;gt;
+&amp;lt;string&amp;gt;Allow the app to access your location even when you not are using the App&amp;lt;/string&amp;gt;
+&amp;lt;key&amp;gt;NSLocationUsageDescription&amp;lt;/key&amp;gt;
+&amp;lt;string&amp;gt;Allow the app to access your current locaiton&amp;lt;/string&amp;gt;
+&amp;lt;key&amp;gt;NSLocationWhenInUseUsageDescription&amp;lt;/key&amp;gt;
+&amp;lt;string&amp;gt;Allow the app to access your location when you are using the App&amp;lt;/string&amp;gt;
+&amp;lt;key&amp;gt;UIBackgroundModes&amp;lt;/key&amp;gt;
+
+&amp;lt;array&amp;gt;
+	&amp;lt;string&amp;gt;fetch&amp;lt;/string&amp;gt;
+	&amp;lt;string&amp;gt;location&amp;lt;/string&amp;gt;
+&amp;lt;/array&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This will do the following :&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Enable the background location tracking&lt;/li&gt;
+  &lt;li&gt;Enable Background sync.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In order to keep the location running in background, you also need to initialize the location during app start and you can do it by overriding the applicationDidFinishLaunchingWithOptions method in the following way:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;AppDelegate.prototype.applicationDidFinishLaunchingWithOptions = function(application, options) {
+
+    this.locationManagerDelegate = CLLocationManagerDelegateImpl.new().init();
+    this.locationManager = CLLocationManager.alloc().init();
+    this.locationManager.delegate = this.locationManagerDelegate;
+    this.locationManager.distanceFilter = 100;
+    this.locationManager.allowsBackgroundLocationUpdates = true;
+
+    this.locationManager.requestAlwaysAuthorization();
+
+    return true;
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here I’ve initialized the distance filter to 100 meters but it should be adjusted based on your need or how frequently you want to track location changes. I’ve also assigned it a delegate to track the location changes and do something meaningful with it:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var CLLocationManagerDelegateImpl = (function (_super) {
+    __extends(CLLocationManagerDelegateImpl, _super);
+    function CLLocationManagerDelegateImpl() {
+        _super.apply(this, arguments);
+    }
+    CLLocationManagerDelegateImpl.new = function () {
+        return _super.new.call(this);
+    };
+
+    CLLocationManagerDelegateImpl.prototype.locationManagerDidUpdateLocations = function(manager, locations) {
+        //console.log(&quot;location updated&quot;)
+    };
+
+    CLLocationManagerDelegateImpl.prototype.locationManagerDidChangeAuthorizationStatus = function(manager, status) {
+        manager.startUpdatingLocation();
+    };
+
+    CLLocationManagerDelegateImpl.ObjCProtocols = [CLLocationManagerDelegate];
+
+    return CLLocationManagerDelegateImpl;
+})(NSObject);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It basically forces the location manager to run in background by requiring the user to accept the following dialog:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/estimote/screenshot.png&quot; alt=&quot;Allow Background Location&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This is required for continuous background processing as outlined in the estimote documentation:&lt;/p&gt;
+
+&lt;p&gt;If you’re sure you need persistent background ranging for beacons, you’ll need to activate the Background Modes capability for your application—specifically, the Location Updates mode.
+Note that for startRangingBeaconsInRegion to work in the background you’ll also need to start Standard Location Updates via CLLocationManager’s startUpdatingLocation (meaning you need both a CLLocationManager and an ESTBeaconManager in your app).
+Note: In iOS 9, you also need to set the allowsBackgroundLocationUpdates property of yourCLLocationManager to true.
+Note: Even with background location updates running, iOS can still suspend the app if it doesn’t detect any changes in the location. (Quote from Apple: “Enabling this mode does not prevent the system from suspending the app, but it does tell the system that it should wake up the app whenever there is new location data to deliver.”)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://developer.estimote.com/ibeacon/tutorial/part-2-background-monitoring/&quot;&gt;Estimote Background Monitoring&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, we need to sync the data back to the tracking portal from device storage which is just a tiny node app that uses socket.io to look for beacon changes. Inside the application delegate method I’ve added the applicationPerformFetchWIthCompletionHandler method with the following block:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;AppDelegate.prototype.applicationPerformFetchWithCompletionHandler = function(application, handler){
+      new Sqlite(&quot;Estimote&quot;, function (err, db) {
+          db.all(&quot;select * from beacon&quot;, [], function(err, resultSet){
+
+            for (var index = 0; index &amp;lt; resultSet.length; index++){
+              var data = resultSet[index][1];
+
+              console.log(JSON.parse(data).rssi);
+
+              console.log(data);
+
+              var promise = http.request({
+                   url : &quot;https://estimote-beacon-tracker.herokuapp.com/api/echo&quot;,
+                   method: &quot;POST&quot;,
+                   headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+                   content : data
+               });
+
+               promise.then(function(result){
+                  //  console.log(JSON.stringify(result));
+               }, function (error){
+                   console.error(JSON.stringify(error));
+               });
+            }
+          });
+      });
+
+     handler(UIBackgroundFetchResult.NewData);
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Full source code along with the tracker node app can be pulled from here:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/mehfuzh/estimote-monitor&quot;&gt;Github Repo&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;For more information on estimote beacons please checkout the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://developer.estimote.com&quot;&gt;Estimote Developer Portal&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;NativeScript getting started guide:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://docs.nativescript.org/start/getting-started&quot;&gt;NativeScript Getting Started&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 24 Mar 2016 13:57:34 -0700</pubDate>
+        <link>http://www.progress.com/estimote/beacon/ios/2016/03/24/estimote-beacon-background.html</link>
+        <guid isPermaLink="true">http://www.progress.com/estimote/beacon/ios/2016/03/24/estimote-beacon-background.html</guid>
+        
+        
+        <category>estimote</category>
+        
+        <category>beacon</category>
+        
+        <category>ios</category>
+        
+      </item>
+    
+  </channel>
+</rss>
