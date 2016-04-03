@@ -62,7 +62,7 @@ var AppDelegate = (function (_super) {
                   console.log(data);
 
                   var promise = http.request({
-                       url : "https://estimote-beacon-monitor.herokuapp.com/api/echo",
+                       url : "https://estimote-beacon-tracker.herokuapp.com/api/echo",
                        method: "POST",
                        headers: { "Content-Type": "application/json" },
                        content : data
