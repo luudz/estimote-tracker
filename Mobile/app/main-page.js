@@ -36,51 +36,52 @@ function pageLoaded(args) {
 
     var _this = this;
 
-    this.options = {
-        callback : function(beacons){
-          var items =[];
-          for (var i = 0; i < beacons.length; i++) {
-             var beacon = beacons[i];
-             if (beacon.major > 0){
-                var distance = "NA";
-                var identifier = "Major:" + beacon.major + " Minor:" + beacon.minor;
-
-                if (beacon.proximity) {
-                  distance = beacon.proximity;
-                }
-
-                var item = {
-                    "proximity" : beacon.proximity,
-                    "identifier": identifier,
-                    "distance":  "Distance: " + distance,
-                    "rssi": "Power: " +  beacon.rssi + "dBm"
-                };
-
-                items.push(item);
-
-                _this.db.all("select * from beacon where major=? and minor=?", [beacon.major, beacon.minor], function(err, resultSet){
-                    // console.log(resultSet[0]);
-                    if (resultSet.length === 0){
-                      _this.db.execSQL("insert into beacon (major, minor, data) values (?, ?, ?)", [beacon.major, beacon.minor, JSON.stringify(item)], function(err, id){
-                          // console.log("The new record id is:", id);
-                      });
-                    }
-                    else{
-                      _this.db.execSQL("update beacon SET data = ? where major = ? and minor = ?", [JSON.stringify(item), beacon.major, beacon.minor], function(err, id){
-                          // console.log("The updated record id is:", id);
-                      });
-                    }
-                });
-             }
-          }
-          data.set("beacons", new observableArrayModule.ObservableArray(items));
-        }
-    };
-
     new Sqlite("Estimote", function (err, db) {
         _this.db = db;
+
+        var options = {
+            callback : function(beacons){
+              var items =[];
+              for (var i = 0; i < beacons.length; i++) {
+                 var beacon = beacons[i];
+                 if (beacon.major > 0){
+                    var distance = "NA";
+                    var identifier = "Major:" + beacon.major + " Minor:" + beacon.minor;
+
+                    if (beacon.proximity) {
+                      distance = beacon.proximity;
+                    }
+
+                    var item = {
+                        "proximity" : beacon.proximity,
+                        "identifier": identifier,
+                        "distance":  "Distance: " + distance,
+                        "rssi": "Power: " +  beacon.rssi + "dBm"
+                    };
+
+                    items.push(item);
+
+                    _this.db.all("select * from beacon where major=? and minor=?", [beacon.major, beacon.minor], function(err, resultSet){
+                        // console.log(resultSet[0]);
+                        if (resultSet.length === 0){
+                          _this.db.execSQL("insert into beacon (major, minor, data) values (?, ?, ?)", [beacon.major, beacon.minor, JSON.stringify(item)], function(err, id){
+                              // console.log("The new record id is:", id);
+                          });
+                        }
+                        else{
+                          _this.db.execSQL("update beacon SET data = ? where major = ? and minor = ?", [JSON.stringify(item), beacon.major, beacon.minor], function(err, id){
+                              // console.log("The updated record id is:", id);
+                          });
+                        }
+                    });
+                 }
+              }
+              data.set("beacons", new observableArrayModule.ObservableArray(items));
+            }
+        };
+
         db.execSQL("CREATE TABLE IF NOT EXISTS beacon (id integer primary key, data text, major integer, minor integer)").then(function(err, id){
-          new Estimote(_this.options).startRanging();
+          new Estimote(options).startRanging();
         });
     });
 

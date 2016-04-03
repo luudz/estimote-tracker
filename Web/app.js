@@ -25,7 +25,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
-
 var server = http.createServer(app);
 
 require('./routes')(app);
