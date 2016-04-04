@@ -136,7 +136,7 @@ Here I’ve initialized the distance filter to 100 meters but it should be adjus
 It basically forces the location manager to run in background by requiring the user to accept the following dialog:
 
 
-![Allow Background Location](/images/estimote/screenshot.png)
+![Allow Background Location](images/estimote/screenshot.png)
 
 
 This is required for continuous background processing as outlined in the estimote documentation:
